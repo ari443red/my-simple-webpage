@@ -6,3 +6,4 @@ _This is my simple webpage!_
 2. I really liked the process.
 - It was a bit complicated at first.
 - But I enjoyed it.
+- It was cool learning about GitHub.
