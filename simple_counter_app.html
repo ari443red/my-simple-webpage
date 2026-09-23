@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimalist Counter</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .pulse-bump {
+      animation: bump 0.14s ease-out;
+    }
+    @keyframes bump {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+    /* Smooth transitions for key interactive elements */
+    .btn-press:active {
+      transform: scale(0.94);
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-center p-4 selection:bg-indigo-500 selection:text-white">
+
+  <!-- Main Counter Container -->
+  <main class="w-full max-w-sm bg-slate-800/90 border border-slate-700/70 backdrop-blur-xl shadow-2xl rounded-3xl p-6 sm:p-8 flex flex-col items-center gap-6 relative overflow-hidden">
+    
+    <!-- Top Action Bar -->
+    <header class="w-full flex items-center justify-between text-xs font-medium text-slate-400">
+      <span class="tracking-widest uppercase text-[11px] font-semibold text-indigo-400">Counter</span>
+      <div class="flex items-center gap-2">
+        <button id="soundToggleBtn" aria-label="Toggle Sound" class="p-2 rounded-xl hover:bg-slate-700 transition text-slate-300 hover:text-white">
+          <svg id="soundIconOn" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+          </svg>
+          <svg id="soundIconOff" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Numeric Display Area -->
+    <section class="flex flex-col items-center justify-center my-3 w-full">
+      <div id="counterValue" class="text-7xl sm:text-8xl font-extrabold tracking-tight transition-transform duration-100 text-white font-mono select-none">
+        0
+      </div>
+      <div id="statusLabel" class="text-xs text-slate-400 mt-2 font-medium tracking-wide">
+        Default initial value
+      </div>
+    </section>
+
+    <!-- Step Selector Pills -->
+    <section class="flex items-center justify-center gap-1.5 bg-slate-900/60 p-1.5 rounded-2xl w-full border border-slate-700/50">
+      <button data-step="1" class="step-btn flex-1 py-1.5 text-xs font-semibold rounded-xl transition text-white bg-indigo-600 shadow-sm">
+        +1
+      </button>
+      <button data-step="5" class="step-btn flex-1 py-1.5 text-xs font-semibold rounded-xl transition text-slate-400 hover:text-slate-200">
+        +5
+      </button>
+      <button data-step="10" class="step-btn flex-1 py-1.5 text-xs font-semibold rounded-xl transition text-slate-400 hover:text-slate-200">
+        +10
+      </button>
+    </section>
+
+    <!-- Main Interactive Controls -->
+    <section class="grid grid-cols-2 gap-3 w-full">
+      <!-- Decrement Button -->
+      <button id="decrementBtn" aria-label="Decrement counter" class="btn-press py-4 rounded-2xl bg-slate-700 hover:bg-slate-650 active:bg-slate-700 font-bold text-2xl text-slate-200 hover:text-white transition shadow-md border border-slate-600/50 flex items-center justify-center gap-1">
+        <span>−</span>
+      </button>
+
+      <!-- Increment Button -->
+      <button id="incrementBtn" aria-label="Increment counter" class="btn-press py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 font-bold text-2xl text-white transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-1">
+        <span>+</span>
+      </button>
+    </section>
+
+    <!-- Secondary Utilities (Reset & Set Custom) -->
+    <footer class="w-full flex items-center justify-between pt-2 border-t border-slate-700/50 text-xs">
+      <button id="resetBtn" class="text-slate-400 hover:text-rose-400 font-medium transition py-1.5 px-2.5 rounded-lg hover:bg-slate-700/50 flex items-center gap-1.5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Reset
+      </button>
+
+      <span class="text-[11px] text-slate-500">Shortcuts: <kbd class="px-1 py-0.5 bg-slate-700 rounded text-slate-300 font-mono text-[10px]">↑</kbd> <kbd class="px-1 py-0.5 bg-slate-700 rounded text-slate-300 font-mono text-[10px]">↓</kbd> <kbd class="px-1 py-0.5 bg-slate-700 rounded text-slate-300 font-mono text-[10px]">R</kbd></span>
+    </footer>
+
+    <!-- Inline Notification Toast -->
+    <div id="toast" class="absolute bottom-3 transform translate-y-12 opacity-0 pointer-events-none transition-all duration-300 bg-slate-950/90 text-slate-200 text-xs py-1.5 px-3 rounded-full border border-slate-700 shadow-xl flex items-center gap-1.5">
+      <span id="toastMessage">Reset counter</span>
+    </div>
+  </main>
+
+  <script>
+    // State management
+    let count = 0;
+    let step = 1;
+    let soundEnabled = true;
+
+    // Load persisted count from LocalStorage if available
+    try {
+      const savedCount = localStorage.getItem('simple_counter_val');
+      if (savedCount !== null && !isNaN(Number(savedCount))) {
+        count = parseInt(savedCount, 10);
+      }
+    } catch (e) {
+      // Local storage disabled or restricted
+    }
+
+    // DOM References
+    const counterDisplay = document.getElementById('counterValue');
+    const statusLabel = document.getElementById('statusLabel');
+    const incrementBtn = document.getElementById('incrementBtn');
+    const decrementBtn = document.getElementById('decrementBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const stepBtns = document.querySelectorAll('.step-btn');
+    const soundToggleBtn = document.getElementById('soundToggleBtn');
+    const soundIconOn = document.getElementById('soundIconOn');
+    const soundIconOff = document.getElementById('soundIconOff');
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toastMessage');
+
+    // Web Audio Synthesizer (No external asset files needed)
+    let audioCtx = null;
+    function playClickSound(freq = 440, type = 'sine') {
+      if (!soundEnabled) return;
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+      } catch (err) {
+        // Audio might be blocked by browser policy until interaction
+      }
+    }
+
+    // Updates UI elements, styling, and persistence
+    function updateCounterDisplay(shouldAnimate = true) {
+      counterDisplay.textContent = count;
+
+      // Color adjustments based on positive, neutral, or negative values
+      if (count > 0) {
+        counterDisplay.className = 'text-7xl sm:text-8xl font-extrabold tracking-tight transition-transform duration-100 text-indigo-400 font-mono select-none';
+        statusLabel.textContent = `Positive count (+${count})`;
+      } else if (count < 0) {
+        counterDisplay.className = 'text-7xl sm:text-8xl font-extrabold tracking-tight transition-transform duration-100 text-rose-400 font-mono select-none';
+        statusLabel.textContent = `Negative count (${count})`;
+      } else {
+        counterDisplay.className = 'text-7xl sm:text-8xl font-extrabold tracking-tight transition-transform duration-100 text-white font-mono select-none';
+        statusLabel.textContent = 'Zero count';
+      }
+
+      // Trigger pop animation
+      if (shouldAnimate) {
+        counterDisplay.classList.remove('pulse-bump');
+        void counterDisplay.offsetWidth; // Force DOM reflow
+        counterDisplay.classList.add('pulse-bump');
+      }
+
+      // Save to localStorage
+      try {
+        localStorage.setItem('simple_counter_val', count.toString());
+      } catch (e) {}
+    }
+
+    // Display brief feedback message
+    let toastTimeout;
+    function showToast(msg) {
+      toastMessage.textContent = msg;
+      toast.classList.remove('translate-y-12', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-12', 'opacity-0');
+      }, 1500);
+    }
+
+    // Increment Action
+    function increment() {
+      count += step;
+      playClickSound(580, 'sine');
+      updateCounterDisplay();
+    }
+
+    // Decrement Action
+    function decrement() {
+      count -= step;
+      playClickSound(340, 'triangle');
+      updateCounterDisplay();
+    }
+
+    // Reset Action
+    function resetCounter() {
+      if (count === 0) {
+        showToast('Already at zero');
+        return;
+      }
+      count = 0;
+      playClickSound(220, 'sine');
+      updateCounterDisplay();
+      showToast('Counter reset to 0');
+    }
+
+    // Event Listeners
+    incrementBtn.addEventListener('click', increment);
+    decrementBtn.addEventListener('click', decrement);
+    resetBtn.addEventListener('click', resetCounter);
+
+    // Step Selector buttons
+    stepBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        stepBtns.forEach((b) => {
+          b.classList.remove('text-white', 'bg-indigo-600', 'shadow-sm');
+          b.classList.add('text-slate-400');
+        });
+        btn.classList.remove('text-slate-400');
+        btn.classList.add('text-white', 'bg-indigo-600', 'shadow-sm');
+        step = parseInt(btn.dataset.step, 10);
+        showToast(`Step set to ±${step}`);
+        playClickSound(480, 'sine');
+      });
+    });
+
+    // Sound toggle listener
+    soundToggleBtn.addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      if (soundEnabled) {
+        soundIconOn.classList.remove('hidden');
+        soundIconOff.classList.add('hidden');
+        showToast('Sound enabled');
+      } else {
+        soundIconOn.classList.add('hidden');
+        soundIconOff.classList.remove('hidden');
+        showToast('Sound muted');
+      }
+    });
+
+    // Keyboard Shortcuts support
+    window.addEventListener('keydown', (e) => {
+      // Avoid interference if focused in an input
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+      if (e.key === 'ArrowUp' || e.key === '+' || e.key === '=') {
+        e.preventDefault();
+        increment();
+      } else if (e.key === 'ArrowDown' || e.key === '-') {
+        e.preventDefault();
+        decrement();
+      } else if (e.key === 'r' || e.key === 'R') {
+        e.preventDefault();
+        resetCounter();
+      } else if (e.key === ' ') {
+        e.preventDefault();
+        increment();
+      }
+    });
+
+    // Initial render
+    updateCounterDisplay(false);
+  </script>
+</body>
+</html>
